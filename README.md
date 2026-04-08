@@ -23,7 +23,7 @@ Aplicação web em Next.js para enviar e receber SMS pelo número Vonage comprad
 │   ├── layout.tsx                  # Root layout + metadados PWA
 │   ├── page.tsx                    # Interface principal (Client Component)
 │   ├── globals.css                 # Tailwind CSS v4
-│   ├── manifest.ts                 # Web App Manifest (PWA)
+│   ├── install-prompt.tsx          # Modal de instalação do PWA
 │   ├── sw-register.tsx             # Registra o Service Worker
 │   └── api/
 │       ├── webhook/route.ts        # Recebe SMS inbound do Vonage (POST/GET)
@@ -32,6 +32,8 @@ Aplicação web em Next.js para enviar e receber SMS pelo número Vonage comprad
 ├── lib/
 │   └── store.ts                    # Store de mensagens em memória
 ├── public/
+│   ├── manifest.json               # Web App Manifest (PWA — arquivo estático)
+│   ├── favicon.png                 # Favicon da aplicação
 │   ├── sw.js                       # Service Worker (cache do app shell)
 │   └── icons/
 │       ├── icon.svg                # Ícone fonte
@@ -39,7 +41,10 @@ Aplicação web em Next.js para enviar e receber SMS pelo número Vonage comprad
 │       └── icon-512.png            # Ícone PWA 512×512
 ├── .env.local.example              # Template das variáveis de ambiente
 ├── .nvmrc                          # Versão do Node (20)
+├── eslint.config.mjs               # Configuração ESLint (flat config)
+├── .prettierrc                     # Configuração Prettier
 ├── next.config.ts
+├── vercel.json
 ├── package.json
 └── tsconfig.json
 ```
