@@ -8,8 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function InstallPrompt() {
-  const [installEvent, setInstallEvent] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -52,9 +51,7 @@ export default function InstallPrompt() {
 
         {/* Text */}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-800 leading-tight">
-            Instalar Vonage SMS
-          </p>
+          <p className="text-sm font-semibold text-gray-800 leading-tight">Instalar Vonage SMS</p>
           <p className="text-xs text-gray-500 mt-0.5">
             Adicione à tela inicial para acesso rápido, sem abrir o navegador.
           </p>

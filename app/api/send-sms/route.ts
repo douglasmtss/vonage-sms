@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 import { Vonage } from "@vonage/server-sdk";
 import { addMessage } from "@/lib/store";
 
@@ -7,7 +8,7 @@ const vonage = new Vonage({
   apiSecret: process.env.VONAGE_API_SECRET ?? "",
 });
 
-const FROM_NUMBER = process.env.VONAGE_FROM_NUMBER ?? "5521960131442";
+const FROM_NUMBER = process.env.VONAGE_FROM_NUMBER ?? "5521912345678";
 const API_SECRET = process.env.API_SECRET;
 
 // Max SMS length: 10 concatenated parts (10 × 160 chars)
@@ -16,10 +17,7 @@ const MAX_TEXT_LENGTH = 1600;
 export async function POST(request: NextRequest) {
   // Bearer token authentication
   if (!API_SECRET) {
-    return NextResponse.json(
-      { error: "Servidor não configurado." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Servidor não configurado." }, { status: 500 });
   }
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${API_SECRET}`) {
@@ -52,10 +50,7 @@ export async function POST(request: NextRequest) {
   // Sanitize: digits only, strip leading +
   const sanitizedTo = to.replace(/\D/g, "");
   if (sanitizedTo.length < 10 || sanitizedTo.length > 15) {
-    return NextResponse.json(
-      { error: "Número de destino inválido." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Número de destino inválido." }, { status: 400 });
   }
 
   if (!process.env.VONAGE_API_KEY || !process.env.VONAGE_API_SECRET) {

@@ -1,7 +1,7 @@
 const CACHE_NAME = "vonage-sms-v1";
 
 // App shell assets to cache on install
-const PRECACHE_URLS = ["/"];
+const PRECACHE_URLS = ["/", "/manifest.json", "/favicon.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -17,11 +17,7 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== CACHE_NAME)
-            .map((key) => caches.delete(key))
-        )
+        Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
       )
       .then(() => self.clients.claim())
   );
@@ -38,13 +34,16 @@ self.addEventListener("fetch", (event) => {
 
   // For navigation requests: network first, fall back to cache
   if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request).catch(() => caches.match("/"))
-    );
+    event.respondWith(fetch(request).catch(() => caches.match("/")));
     return;
   }
 
   // For static assets: cache first, fall back to network
+  // Only cache GET requests — the Cache API does not support POST
+  if (request.method !== "GET") {
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then(
       (cached) =>

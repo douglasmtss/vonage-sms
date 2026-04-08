@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 import { addMessage } from "@/lib/store";
 
 /**
@@ -36,9 +37,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Vonage may send as application/x-www-form-urlencoded
       const formData = await request.formData();
-      body = Object.fromEntries(
-        Array.from(formData.entries()).map(([k, v]) => [k, String(v)])
-      );
+      body = Object.fromEntries(Array.from(formData.entries()).map(([k, v]) => [k, String(v)]));
     }
   } catch {
     return new NextResponse(null, { status: 400 });

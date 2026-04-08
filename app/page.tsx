@@ -11,7 +11,8 @@ interface SmsMessage {
   timestamp: number;
 }
 
-const MY_NUMBER = process.env.NEXT_PUBLIC_FROM_NUMBER;
+const MY_NUMBER = process.env.NEXT_PUBLIC_FROM_NUMBER ?? "5521912345678";
+const AUTH_HEADER = `Bearer ${process.env.NEXT_PUBLIC_API_SECRET ?? ""}`;
 
 export default function HomePage() {
   const [toNumber, setToNumber] = useState("");
@@ -25,7 +26,9 @@ export default function HomePage() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const res = await fetch("/api/messages");
+        const res = await fetch("/api/messages", {
+          headers: { Authorization: AUTH_HEADER },
+        });
         if (res.ok) {
           const data: SmsMessage[] = await res.json();
           setMessages(data);
@@ -66,7 +69,7 @@ export default function HomePage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_API_SECRET ?? ""}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_SECRET ?? ""}`,
         },
         body: JSON.stringify({ to: trimmedTo, text: trimmedText }),
       });
@@ -78,7 +81,9 @@ export default function HomePage() {
       } else {
         setText("");
         // Immediately fetch updated messages
-        const updated = await fetch("/api/messages");
+        const updated = await fetch("/api/messages", {
+          headers: { Authorization: AUTH_HEADER },
+        });
         if (updated.ok) setMessages(await updated.json());
       }
     } catch {
@@ -109,17 +114,13 @@ export default function HomePage() {
           <h1 className="text-2xl font-bold text-gray-800">Vonage SMS</h1>
           <p className="text-sm text-gray-500 mt-1">
             Seu número:{" "}
-            <span className="font-mono font-semibold text-gray-700">
-              +{MY_NUMBER}
-            </span>
+            <span className="font-mono font-semibold text-gray-700">+{MY_NUMBER}</span>
           </p>
         </div>
 
         {/* Destination number input */}
         <div className="bg-white rounded-2xl shadow p-4">
-          <label className="block text-sm font-medium text-gray-600 mb-1">
-            Número de destino
-          </label>
+          <label className="block text-sm font-medium text-gray-600 mb-1">Número de destino</label>
           <input
             type="tel"
             placeholder="Ex: 5511999999999"
@@ -135,9 +136,7 @@ export default function HomePage() {
         {/* Message box */}
         <div className="bg-white rounded-2xl shadow flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100">
-            <h2 className="text-sm font-semibold text-gray-600">
-              Caixa de mensagens
-            </h2>
+            <h2 className="text-sm font-semibold text-gray-600">Caixa de mensagens</h2>
           </div>
 
           {/* Messages list */}
@@ -164,9 +163,7 @@ export default function HomePage() {
                     {msg.text}
                   </div>
                   <span className="text-xs text-gray-400 mt-1 px-1">
-                    {msg.direction === "inbound"
-                      ? `De: +${msg.from} · `
-                      : `Para: +${msg.to} · `}
+                    {msg.direction === "inbound" ? `De: +${msg.from} · ` : `Para: +${msg.to} · `}
                     {formatTime(msg.timestamp)}
                   </span>
                 </div>
@@ -222,8 +219,7 @@ export default function HomePage() {
           </code>
           <p className="mt-1 text-xs text-yellow-700">
             Método: POST · Em desenvolvimento, use{" "}
-            <span className="font-mono">ngrok http 3000</span> para expor o
-            servidor local.
+            <span className="font-mono">ngrok http 3000</span> para expor o servidor local.
           </p>
         </div>
       </div>
