@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Background rounded rect -->
+  <rect width="512" height="512" rx="96" fill="#2563EB"/>
+  <!-- Speech bubble -->
+  <path d="M128 152h256a40 40 0 0 1 40 40v152a40 40 0 0 1-40 40H208l-72 56V384a40 40 0 0 1-48-39.5V192a40 40 0 0 1 40-40z" fill="white"/>
+  <!-- Dots inside bubble -->
+  <circle cx="196" cy="272" r="20" fill="#2563EB"/>
+  <circle cx="256" cy="272" r="20" fill="#2563EB"/>
+  <circle cx="316" cy="272" r="20" fill="#2563EB"/>
+</svg>
