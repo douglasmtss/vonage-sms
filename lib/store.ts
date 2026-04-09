@@ -8,10 +8,12 @@
  */
 
 export type MessageDirection = "inbound" | "outbound";
+export type MessageSource = "sms" | "application";
 
 export interface SmsMessage {
   id: string;
   direction: MessageDirection;
+  source: MessageSource;
   from: string;
   to: string;
   text: string;

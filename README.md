@@ -25,8 +25,12 @@ Aplicação web em Next.js para enviar e receber SMS pelo número Vonage comprad
 │   ├── globals.css                 # Tailwind CSS v4
 │   ├── install-prompt.tsx          # Modal de instalação do PWA
 │   ├── sw-register.tsx             # Registra o Service Worker
+│   ├── inbound/
+│   │   └── route.ts                # Messages API — recebe mensagem inbound (POST)
+│   ├── status/
+│   │   └── route.ts                # Messages API — recebe atualização de status (POST)
 │   └── api/
-│       ├── webhook/route.ts        # Recebe SMS inbound do Vonage (POST/GET)
+│       ├── webhook/route.ts        # SMS API — recebe SMS inbound legado (POST/GET)
 │       ├── send-sms/route.ts       # Envia SMS via SDK Vonage (POST)
 │       └── messages/route.ts       # Retorna histórico de mensagens (GET)
 ├── lib/
@@ -81,6 +85,9 @@ VONAGE_FROM_NUMBER=55219XXXXXXXX
 # Exibido na interface do usuário
 NEXT_PUBLIC_FROM_NUMBER=55219XXXXXXXX
 
+# Vonage Messages API Application — dashboard.nexmo.com/applications
+VONAGE_APPLICATION_ID=seu_application_id_aqui
+
 # Segredo adicionado à URL do webhook: /api/webhook?secret=<valor>
 # Gere com: openssl rand -hex 32
 WEBHOOK_SECRET=gere_um_valor_aleatorio
@@ -107,16 +114,27 @@ npm run dev
 
 Acesse [http://localhost:3000](http://localhost:3000).
 
-## Configurando o webhook no Vonage
+## Configurando os webhooks no Vonage
 
-Para receber SMS localmente, exponha o servidor com **ngrok**:
+Para receber mensagens localmente, exponha o servidor com **ngrok**:
 
 ```bash
 # Em outro terminal
 ngrok http 3000
 ```
 
-O ngrok exibirá uma URL pública como `https://xxxx.ngrok-free.app`. Configure-a no painel Vonage:
+O ngrok exibirá uma URL pública como `https://xxxx.ngrok-free.app`.
+
+### Messages API Application (recomendado)
+
+1. Acesse [dashboard.nexmo.com/applications](https://dashboard.nexmo.com/applications)
+2. Abra sua aplicação e clique em **Edit**
+3. Em **Messages**, configure:
+   - **Inbound URL:** `https://xxxx.ngrok-free.app/inbound`
+   - **Status URL:** `https://xxxx.ngrok-free.app/status`
+4. Salve e vincule seu número virtual à aplicação
+
+### SMS API (legado)
 
 1. Acesse [dashboard.nexmo.com](https://dashboard.nexmo.com)
 2. Vá em **Phone Numbers → Your Numbers → Manage**
@@ -124,10 +142,9 @@ O ngrok exibirá uma URL pública como `https://xxxx.ngrok-free.app`. Configure-
    ```
    https://xxxx.ngrok-free.app/api/webhook?secret=SEU_WEBHOOK_SECRET
    ```
-4. Método: **POST**
-5. Salve
+4. Método: **POST** — Salve
 
-Agora qualquer SMS enviado para o seu número Vonage aparecerá na caixa de mensagens.
+Agora qualquer mensagem enviada para o seu número aparecerá na caixa de mensagens.
 
 ## Deploy na Vercel
 
@@ -141,26 +158,29 @@ Agora qualquer SMS enviado para o seu número Vonage aparecerá na caixa de mens
    | `VONAGE_API_SECRET`         | seu api secret                               |
    | `VONAGE_FROM_NUMBER`        | seu número Vonage (só dígitos, ex: `5521XXXXXXXXX`) |
    | `NEXT_PUBLIC_FROM_NUMBER`   | mesmo valor de `VONAGE_FROM_NUMBER`          |
+   | `VONAGE_APPLICATION_ID`     | ID da aplicação Messages API                 |
    | `WEBHOOK_SECRET`            | resultado de `openssl rand -hex 32`          |
    | `API_SECRET`                | resultado de `openssl rand -hex 32`          |
    | `NEXT_PUBLIC_API_SECRET`    | mesmo valor de `API_SECRET`                  |
 
 4. Clique em **Deploy**
-5. Após o deploy, configure o webhook no Vonage com a URL de produção (inclua o `secret`):
-   ```
-   https://seu-projeto.vercel.app/api/webhook?secret=SEU_WEBHOOK_SECRET
-   ```
+5. Após o deploy, configure os webhooks no Vonage com as URLs de produção:
+   - **Messages API → Inbound URL:** `https://seu-projeto.vercel.app/inbound`
+   - **Messages API → Status URL:** `https://seu-projeto.vercel.app/status`
+   - **SMS API (legado) → Inbound URL:** `https://seu-projeto.vercel.app/api/webhook?secret=SEU_WEBHOOK_SECRET`
 
 ## Rotas da API
 
 Todas as rotas que modificam ou retornam dados exigem autenticação.
 
-| Método | Rota            | Autenticação              | Descrição                                              |
-| ------ | --------------- | ------------------------- | ------------------------------------------------------ |
-| `POST` | `/api/webhook`  | `?secret=WEBHOOK_SECRET`  | Recebe SMS inbound do Vonage                           |
-| `GET`  | `/api/webhook`  | `?secret=WEBHOOK_SECRET`  | Recebe SMS inbound via querystring (fallback)          |
-| `POST` | `/api/send-sms` | `Bearer API_SECRET`       | Envia SMS. Body: `{ "to": "5511...", "text": "Olá" }`  |
-| `GET`  | `/api/messages` | `Bearer API_SECRET`       | Retorna todas as mensagens em ordem cronológica (JSON) |
+| Método | Rota            | Autenticação                        | Descrição                                              |
+| ------ | --------------- | ----------------------------------- | ------------------------------------------------------ |
+| `POST` | `/inbound`      | JWT claim `application_id` (Vonage) | Messages API — recebe mensagem inbound                 |
+| `POST` | `/status`       | JWT claim `application_id` (Vonage) | Messages API — recebe atualização de status            |
+| `POST` | `/api/webhook`  | `?secret=WEBHOOK_SECRET`            | SMS API (legado) — recebe SMS inbound                  |
+| `GET`  | `/api/webhook`  | `?secret=WEBHOOK_SECRET`            | SMS API (legado) — fallback via querystring            |
+| `POST` | `/api/send-sms` | `Bearer API_SECRET`                 | Envia SMS. Body: `{ "to": "5511...", "text": "Olá" }`  |
+| `GET`  | `/api/messages` | `Bearer API_SECRET`                 | Retorna todas as mensagens em ordem cronológica (JSON) |
 
 ### Exemplo: enviar SMS via curl
 

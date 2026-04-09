@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 interface SmsMessage {
   id: string;
   direction: "inbound" | "outbound";
+  source: "sms" | "application";
   from: string;
   to: string;
   text: string;
@@ -162,10 +163,23 @@ export default function HomePage() {
                   >
                     {msg.text}
                   </div>
-                  <span className="text-xs text-gray-400 mt-1 px-1">
-                    {msg.direction === "inbound" ? `De: +${msg.from} · ` : `Para: +${msg.to} · `}
-                    {formatTime(msg.timestamp)}
-                  </span>
+                  <div className="flex items-center gap-1.5 mt-1 px-1">
+                    {msg.direction === "inbound" && (
+                      <span
+                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                          msg.source === "application"
+                            ? "bg-purple-100 text-purple-700"
+                            : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {msg.source === "application" ? "App" : "SMS"}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-400">
+                      {msg.direction === "inbound" ? `De: +${msg.from} · ` : `Para: +${msg.to} · `}
+                      {formatTime(msg.timestamp)}
+                    </span>
+                  </div>
                 </div>
               ))
             )}

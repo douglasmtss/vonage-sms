@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
   if (text) {
     addMessage({
       direction: "inbound",
+      source: "sms",
       from,
       to,
       text,
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
   const text = (searchParams.get("text") ?? searchParams.get("Text") ?? "").slice(0, 1600);
 
   if (text) {
-    addMessage({ direction: "inbound", from, to, text });
+    addMessage({ direction: "inbound", source: "sms", from, to, text });
   }
 
   return new NextResponse(null, { status: 200 });

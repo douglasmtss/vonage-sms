@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
 
     addMessage({
       direction: "outbound",
+      source: "sms",
       from: FROM_NUMBER,
       to: sanitizedTo,
       text,
